@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS
 
 # Gemini API configuration
-GEMINI_API_KEY = "AIzaSyDs3-41wBQB0chaGlAihcc-FoSUBfgHLVA"
+GEMINI_API_KEY = "YOUR_API_KEY"
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 def create_directories_and_files():

@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeFix Pro | Advanced Code Debugging Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta name="description" content="Professional AI-powered code debugging and optimization platform">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo-icon"><span>&lt;/&gt;</span></div>
+                <h1>CodeFix<span class="accent">Pro</span></h1>
+            </div>
+            <p class="tagline">Advanced AI-Powered Code Debugging & Optimization</p>
+            <div class="header-decoration"></div>
+        </header>
+        
+        <main class="workspace">
+            <section class="code-container">
+                <div class="code-panel input-panel">
+                    <div class="panel-header">
+                        <h2><span class="icon">📝</span>Source Code</h2>
+                        <div class="panel-controls">
+                            <button class="control-btn" id="clear-input" title="Clear code"><span>⟲</span></button>
+                        </div>
+                    </div>
+                    <textarea id="buggy-code" placeholder="// Paste your code here for analysis and optimization..."></textarea>
+                    <div class="button-group">
+                        <button id="fix-code-btn" class="primary-btn"><span class="btn-icon">🔍</span>Analyze & Debug</button>
+                    </div>
+                </div>
+                
+                <div class="code-panel output-panel">
+                    <div class="panel-header">
+                        <h2><span class="icon">✅</span>Optimized Code</h2>
+                        <div class="panel-controls">
+                            <button class="control-btn" id="fullscreen-btn" title="Fullscreen"><span>⛶</span></button>
+                        </div>
+                    </div>
+                    <div id="fixed-code-container">
+                        <pre><code id="fixed-code">// Your optimized code will appear here...</code></pre>
+                    </div>
+                    <div class="button-group">
+                        <button id="explain-code-btn" class="secondary-btn" disabled><span class="btn-icon">💡</span>Explain Changes</button>
+                        <button id="copy-code-btn" class="secondary-btn" disabled><span class="btn-icon">📋</span>Copy Code</button>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="explanation-panel" id="explanation-panel">
+                <div class="panel-header">
+                    <h2><span class="icon">🧠</span>Technical Analysis</h2>
+                </div>
+                <div id="explanation-container" class="scrollable">
+                    <p>Detailed analysis of code changes will appear here...</p>
+                </div>
+            </section>
+        </main>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="loading-text">Analyzing code structure...</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+        
+        <footer class="app-footer">
+            <p>Powered by advanced AI technology</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buggyCodeTextarea = document.getElementById('buggy-code');
+            const fixedCodeElement = document.getElementById('fixed-code');
+            const fixCodeBtn = document.getElementById('fix-code-btn');
+            const explainCodeBtn = document.getElementById('explain-code-btn');
+            const copyCodeBtn = document.getElementById('copy-code-btn');
+            const loadingElement = document.getElementById('loading');
+            const loadingTextElement = document.getElementById('loading-text');
+            const explanationPanel = document.getElementById('explanation-panel');
+            const explanationContainer = document.getElementById('explanation-container');
+            const clearInputBtn = document.getElementById('clear-input');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const progressFill = document.querySelector('.progress-fill');
+            
+            let originalCode = '';
+            let fixedCode = '';
+            
+            // Initially hide the explanation panel
+            explanationPanel.style.display = 'none';
+            
+            // Clear input button functionality
+            clearInputBtn.addEventListener('click', function() {
+                buggyCodeTextarea.value = '';
+                buggyCodeTextarea.focus();
+            });
+            
+            // Fullscreen functionality
+            fullscreenBtn.addEventListener('click', function() {
+                const codeContainer = document.querySelector('.output-panel');
+                if (!document.fullscreenElement) {
+                    if (codeContainer.requestFullscreen) {
+                        codeContainer.requestFullscreen();
+                    } else if (codeContainer.mozRequestFullScreen) {
+                        codeContainer.mozRequestFullScreen();
+                    } else if (codeContainer.webkitRequestFullscreen) {
+                        codeContainer.webkitRequestFullscreen();
+                    } else if (codeContainer.msRequestFullscreen) {
+                        codeContainer.msRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                }
+            });
+            
+            fixCodeBtn.addEventListener('click', async function() {
+                originalCode = buggyCodeTextarea.value.trim();
+                
+                if (!originalCode) {
+                    alert('Please enter some code to analyze');
+                    return;
+                }
+                
+                // Show loading
+                loadingElement.style.display = 'flex';
+                loadingTextElement.textContent = 'Analyzing code structure...';
+                
+                // Animate progress bar
+                progressFill.style.width = '0%';
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 1;
+                    progressFill.style.width = `${Math.min(progress, 95)}%`;
+                    
+                    if (progress === 30) {
+                        loadingTextElement.textContent = 'Identifying issues...';
+                    } else if (progress === 60) {
+                        loadingTextElement.textContent = 'Optimizing code...';
+                    } else if (progress === 85) {
+                        loadingTextElement.textContent = 'Finalizing solution...';
+                    }
+                }, 50);
+                
+                // Hide explanation panel when starting a new debug
+                explanationPanel.style.display = 'none';
+                
+                // Disable explain button initially
+                explainCodeBtn.disabled = true;
+                copyCodeBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('/api/fix_code', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code: originalCode })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        fixedCode = data.fixed_code;
+                        fixedCodeElement.textContent = fixedCode;
+                        
+                        // Enable buttons after successful fix
+                        explainCodeBtn.disabled = false;
+                        copyCodeBtn.disabled = false;
+                    } else {
+                        fixedCodeElement.textContent = `Error: ${data.error || 'Unknown error'}`;
+                    }
+                } catch (error) {
+                    fixedCodeElement.textContent = `Error: ${error.message}`;
+                } finally {
+                    // Complete progress bar
+                    progressFill.style.width = '100%';
+                    clearInterval(progressInterval);
+                    
+                    // Hide loading after a short delay to show completed progress
+                    setTimeout(() => {
+                        loadingElement.style.display = 'none';
+                    }, 500);
+                }
+            });
+            
+            explainCodeBtn.addEventListener('click', async function() {
+                if (!originalCode || !fixedCode) {
+                    alert('Please debug the code first');
+                    return;
+                }
+                
+                // Show loading
+                loadingElement.style.display = 'flex';
+                loadingTextElement.textContent = 'Generating technical analysis...';
+                
+                // Reset and animate progress bar
+                progressFill.style.width = '0%';
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 1;
+                    progressFill.style.width = `${Math.min(progress, 95)}%`;
+                }, 50);
+                
+                try {
+                    const response = await fetch('/api/explain_changes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            original_code: originalCode,
+                            fixed_code: fixedCode
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        explanationContainer.innerHTML = data.explanation;
+                        explanationPanel.style.display = 'block';
+                    } else {
+                        explanationContainer.innerHTML = `<p class="error">Error: ${data.error || 'Unknown error'}</p>`;
+                        explanationPanel.style.display = 'block';
+                    }
+                } catch (error) {
+                    explanationContainer.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                    explanationPanel.style.display = 'block';
+                } finally {
+                    // Complete progress bar
+                    progressFill.style.width = '100%';
+                    clearInterval(progressInterval);
+                    
+                    // Hide loading after a short delay
+                    setTimeout(() => {
+                        loadingElement.style.display = 'none';
+                    }, 500);
+                }
+            });
+            
+            copyCodeBtn.addEventListener('click', function() {
+                if (!fixedCode) {
+                    return;
+                }
+                
+                // Create a temporary textarea to copy the text
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = fixedCode;
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    // Show temporary success message
+                    const originalText = copyCodeBtn.textContent;
+                    copyCodeBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyCodeBtn.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
+                } finally {
+                    document.body.removeChild(tempTextarea);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+        

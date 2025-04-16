@@ -1,6 +1,3 @@
-Here's an updated version of the README with emojis to make it more engaging:
-
----
 
 # 🚀 CodeFix_Pro
 
